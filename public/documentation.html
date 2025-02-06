@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieFetcher Documentation</title>
     <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
@@ -22,6 +25,9 @@
         tbody {
             font-weight: 400;
         }
+        hr {
+            margin: 30px 0px;
+        }
     </style>
 </head>
 <body>
@@ -32,27 +38,159 @@
     <hr>
 
     <h2>Getting Started</h2>
-    <h3>How to get top 10 movies?</h3>
+    <h3>How to get date about movies, genres and directors?</h3>
     <table>
         <thead>
             <tr>
-                <th>Used HTTP Method:</th>
-                <th>Endpoint:</th>
-                <th>Response:</th>
+                <th>BUSINESS LOGIC:</th>
+                <th>HTTP METHOD:</th>
+                <th>ENDPOINT:</th>
+                <th>REQUEST BODY DATA FORMAT:</th>
+                <th>RESPONSE BODY DATA FORMAT:</th>
             </tr>
         </thead>
         <tbody>
             <tr>
+                <th>Get the list of data about all movies</th>
                 <th>GET</th>
                 <th>/movies</th>
-                <th>JSON array of top 10 movies</th>
+                <th>None</th>
+                <th>A JSON object holding data about all movies</th>
+            </tr>
+            <tr>
+                <th>Get the all data about a single movie by title</th>
+                <th>GET</th>
+                <th>/movies/:title</th>
+                <th>None</th>
+                <th>A JSON object holding all data about one single movie:<br>
+                    <code> 
+                        { <br>
+                        "title": "Nowhere",<br>
+                        "description": "Pregnant, alone and drifting in the sea, a woman trapped in a shipping container tries to survive after fleeing a devastated totalitarian country.",<br>
+                        "genre": {<br>
+                            "name": "Drama",<br>
+                            "description": "In film and television, drama is a category or genre of narrative fiction (or semi-fiction) intended to be more serious than humorous in tone. The drama of this kind is usually qualified with additional terms that specify its particular super-genre, macro-genre, or micro-genre, such as soap opera, police crime drama, political drama, legal drama, historical drama, domestic drama, teen drama, and comedy-drama (dramedy)."<br>
+                        },<br>
+                        "year": 2023,<br>
+                        "duration": "1h 49m",<br>
+                        "director": {<br>
+                            "name": "Albert Pintó",<br>
+                            "bio": "Albert Pintó Pérez was born in Terrassa, Barcelona, Catalonia, Spain. He is a director and writer, known for Nowhere (2023), Berlin (2023) and Money Heist (2017).",<br>
+                            "birth": "28 Oct 1985"<br>
+                        },<br>
+                        "actors": [<br>
+                            "Anna Castillo",<br>
+                            "Tamar Novas",<br>
+                            "Tony Corvillo"<br>
+                        ],<br>
+                        "image": "https://placehold.co/600x400/png"<br>
+                    }
+                    </code>
+                </th>
+            </tr>
+            <tr>
+                <th>Get the data about a genre by name</th>
+                <th>GET</th>
+                <th>/movies/genre/:genreName</th>
+                <th>None</th>
+                <th>A JSON object holding data about a one specific genre: <br>
+                    <code>
+                        {<br>
+                            "name": "Action",<br>
+                            "description": "The action film is a film genre that predominantly features chase sequences, fights, shootouts, explosions, and stunt work. The specifics of what constitutes an action film has been in scholarly debate since the 1980s."<br>
+                        }
+                    </code>
+                </th>
+            </tr>
+            <tr>
+                <th>Get the all data about a director by name</th>
+                <th>GET</th>
+                <th>/movies/director/:directorName</th>
+                <th>None</th>
+                <th>A JSON object holding data about a one specific director: <br>
+                    <code>
+                        {<br>
+                            "name": "Mike Newell",<br>
+                            "bio": "Michael Cormac \"Mike\" Newell is an English director and producer of motion pictures for the screen and for television. After the release of Harry Potter and the Goblet of Fire in 2005, Newell became the third most commercially successful British director in recent years.",<br>
+                            "birth": "28 Mar 1942"<br>
+                        }
+                    </code>
+                </th>
             </tr>
         </tbody>
     </table>
 
     <hr>
 
-    <h2></h2>
-    <p></p>
+    <h3>How to manage data about users?</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>BUSINESS LOGIC:</th>
+                <th>HTTP METHOD:</th>
+                <th>ENDPOINT:</th>
+                <th>REQUEST BODY DATA FORMAT:</th>
+                <th>RESPONSE BODY DATA FORMAT:</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Add (register) new users</th>
+                <th>POST</th>
+                <th>/users</th>
+                <th>A JSON object holding data about the new user to add, structured like the following example:<br>
+                    <code>
+                        {<br>
+                            "name": "Olga",<br>
+                            "favoriteMovies": []<br>
+                        }
+                    </code>
+                </th>
+                <th>A JSON object holding data about the new user that was added:<br>
+                    <code>
+                        {<br>
+                            "name": "Olga",<br>
+                            "favoriteMovies": [],<br>
+                            "id": "d1dccc24-1151-452c-bcc3-29698835da3d"<br>
+                        }
+                    </code>
+                </th>
+            </tr>
+            <tr>
+                <th>Update (change) username</th>
+                <th>PUT</th>
+                <th>/users/:id</th>
+                <th>A JSON object holding new username that should be changed:<br>
+                    <code>
+                        {<br>
+                            "name": "Leandro"<br>
+                        }
+                    </code>
+                </th>
+                <th>A text message indicating whether the username was successfully changed.</th>
+            </tr>
+            <tr>
+                <th>Add a movie to the user's favorites list</th>
+                <th>POST</th>
+                <th>/users/:id/:newFavMovie</th>
+                <th>None</th>
+                <th>A text message indicating whether the user has successfully added a movie to the favorites list.</th>
+            </tr>
+            <tr>
+                <th>Delete a movie from user's list of favorites</th>
+                <th>DELETE</th>
+                <th>/users/:id/:newFavMovie</th>
+                <th>None</th>
+                <th>A text message indicating whether the user has successfully removed a movie from the favorites list.</th>
+            </tr>
+            <tr>
+                <th>Delete user's account (deregester)</th>
+                <th>DELETE</th>
+                <th>/users/:id</th>
+                <th>None</th>
+                <th>A text message indicating whether the user's account has successfully deleted.</th>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
