@@ -1,5 +1,4 @@
 const express = require('express'), // Import express framework
-    morgan = require('morgan'); // Import morgan logging middleware
     morgan = require('morgan'), // Import morgan logging middleware
     bodyParser = require('body-parser'), 
     uuid = require('uuid');
@@ -197,31 +196,103 @@ let movies = [
     },
 ]
 
-// GET routes
+// MOVIES
 
-});
-
-// Get top 10 movies
+// Get the list of data about all movies
 app.get('/movies', (req, res) => {
-    const top10Movies = [
-        {title: 'The Godfather', year: 1972, duration: '2h 55m'},
-        {title: 'The Lord of the Rings: Return of the King', year: 2003, duration: '3h 21m'},
-        {title: 'Schindelr\'s List', year: 1993, duration: '3h 15m'},
-        {title: 'The Good, the Bad and the Ugly', year: 1966, duration: '2h 28m'},
-        {title: 'Forrest Gump', year: 1994, duration: '2h 22m'},
-        {title: 'Fight Club', year: 1999, duration: '2h 19m'},
-        {title: 'Inception', year: 2010, duration: '2h 28m'},
-        {title: 'The Matrix', year: 1999, duration: '2h 16m'},
-        {title: 'GoodFellas', year: 1990, duration: '2h 25m'},
-        {title: 'Interstellar', year: 2014, duration: '2h 49m'}
-    ]
-    res.json(top10Movies);
+    res.status(200).json(movies);
 });
 
-// Throw errors at all app-level
-app.use((err, req, res, next) => {
-    console.log(err.stack);
-    res.status(500).send('Something went wrong!');
+
+// Get the all data about a single movie by title
+app.get('/movies/:title', (req, res) => {
+    res.json(movies.find( (movie) => 
+        { return movie.title === req.params.title })
+    );
+});
+
+// Get the data about a genre by name
+app.get('/movies/genre/:genreName', (req, res) => {
+    res.json(movies.find( (movie) => 
+        { return movie.genre.name === req.params.genreName }).genre
+    );
+});
+
+// Get the all data about a director by name
+app.get('/movies/director/:directorName', (req, res) => {
+    res.json(movies.find( (movie) => 
+        { return movie.director.name === req.params.directorName }).director
+    );
+});
+
+
+// USERS
+
+// Add (register) new users
+app.post('/users', (req, res) => {
+    let newUser = req.body;
+
+    if (newUser.name) {
+        newUser.id = uuid.v4();
+        users.push(newUser);
+        res.status(201).send(newUser);
+    } else {
+        res.status(400).send('Name needed in request body!');
+    }
+});
+
+// Update (change) username
+app.put('/users/:id', (req, res)  => {
+    const { id } = req.params;
+    const newUsername = req.body;
+
+    let user = users.find( user => user.id == id );
+
+    if (user) {
+        user.name = newUsername.name;
+        res.status(200).send('Username successfully updated!');
+    } else {
+        res.status(400).send('New username could not be updated!');
+    }
+});
+
+// Add a movie to the user's favorites list
+app.post('/users/:id/:newFavMovie', (req, res)  => {
+    const { id, newFavMovie } = req.params;
+    let user = users.find( user => user.id == id );
+
+    if (user) {
+        user.favoriteMovies.push(newFavMovie);
+        res.status(200).send('New favorite movie successfully added!');
+    } else {
+        res.status(400).send('New favorite movie could not be added!');
+    }
+});
+
+// Delete a movie from user's list of favorites
+app.delete('/users/:id/:newFavMovie', (req, res)  => {
+    const { id, newFavMovie } = req.params;
+    let user = users.find( user => user.id == id );
+
+    if (user) {
+        user.favoriteMovies.filter( (user) => {return user.id != req.params.id});
+        res.status(200).send(req.params.newFavMovie + ' movie successfully removed from the favorites list!');
+    } else {
+        res.status(400).send('New favorite movie could not be added!');
+    }
+});
+
+// Delete user's account (deregester)
+app.delete('/users/:id', (req, res)  => {
+    const { id } = req.params;
+    let user = users.find( user => user.id == id );
+
+    if (user) {
+        user.favoriteMovies.filter( (user) => {return user.id != req.params.id});
+        res.status(200).send('User with id nummber ' + req.params.id + ' successfully deleted!');
+    } else {
+        res.status(400).send('User not found!')
+    }
 });
 
 // Listen for requests
