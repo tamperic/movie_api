@@ -199,9 +199,6 @@ let movies = [
 
 // GET routes
 
-// Get a default welcome message
-app.get('/', (req, res) => {
-    res.send('Welcome to MovieFether!');
 });
 
 // Get top 10 movies
