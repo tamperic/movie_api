@@ -1,11 +1,15 @@
 const express = require('express'), // Import express framework
     morgan = require('morgan'); // Import morgan logging middleware
+    morgan = require('morgan'), // Import morgan logging middleware
+    bodyParser = require('body-parser'), 
+    uuid = require('uuid');
 
 const app = express();
 
 
 // Middleware
 app.use(morgan('common'));
+app.use(bodyParser.json());
 app.use(express.static('public')); // Get static file 'documentation.html'
 
 
