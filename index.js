@@ -206,23 +206,38 @@ app.get('/movies', (req, res) => {
 
 // Get the all data about a single movie by title
 app.get('/movies/:title', (req, res) => {
-    res.json(movies.find( (movie) => 
-        { return movie.title === req.params.title })
-    );
+    const movie = movies.find( movie => movie.title.toLowerCase() === req.params.title.toLowerCase()); // Allow case-insensitive searches
+
+    // Check if movie exists
+    if (!movie) {
+        return res.status(404).send('Movie not found.');
+    }
+
+    res.json(movie);
 });
 
 // Get the data about a genre by name
 app.get('/movies/genre/:genreName', (req, res) => {
-    res.json(movies.find( (movie) => 
-        { return movie.genre.name === req.params.genreName }).genre
-    );
+    const genre = movies.find( movie => movie.genre.name.toLowerCase() === req.params.genreName.toLowerCase()).genre;
+
+    // Check if genre exists
+    if(!genre) {
+        return res.status(404).send('Genre not found.');
+    }
+
+    res.json(genre);
 });
 
 // Get the all data about a director by name
 app.get('/movies/director/:directorName', (req, res) => {
-    res.json(movies.find( (movie) => 
-        { return movie.director.name === req.params.directorName }).director
-    );
+    const director = movies.find( movie => movie.director.name.toLowerCase() === req.params.directorName.toLowerCase()).director;
+
+    // Check if director exists
+    if(!director) {
+        return res.status(404).send('Director not found.');
+    }
+
+    res.json(director);
 });
 
 
@@ -274,25 +289,30 @@ app.delete('/users/:id/:newFavMovie', (req, res)  => {
     const { id, newFavMovie } = req.params;
     let user = users.find( user => user.id == id );
 
-    if (user) {
-        user.favoriteMovies.filter( (user) => {return user.id != req.params.id});
-        res.status(200).send(req.params.newFavMovie + ' movie successfully removed from the favorites list!');
+    // Check if user exists
+    if (!user) {
+        return res.status(404).send('User not found!');
+    }
+    const movieIndex = user.favoriteMovies.indexOf(newFavMovie);
+
+    if(movieIndex !== -1) {
+        user.favoriteMovies.splice(movieIndex, 1); // Properly remove the movie from the favoriteMovie array
+        res.status(200).send(newFavMovie + ' successfully removed from the favorites list!');
     } else {
-        res.status(400).send('New favorite movie could not be added!');
+       return res.status(400).send('Movie not found in favorites!');
     }
 });
 
 // Delete user's account (deregester)
 app.delete('/users/:id', (req, res)  => {
     const { id } = req.params;
-    let user = users.find( user => user.id == id );
+    const userIndex = users.findIndex(user => user.id == id );
 
-    if (user) {
-        user.favoriteMovies.filter( (user) => {return user.id != req.params.id});
-        res.status(200).send('User with id nummber ' + req.params.id + ' successfully deleted!');
-    } else {
-        res.status(400).send('User not found!')
+    if(userIndex === -1) {
+        return res.status(404).send('User not found!');
     }
+    users.splice(userIndex, 1); // Properly remove the user from the array
+    res.status(200).send('User with ID ' + id + ' successfully deleted!');
 });
 
 // Listen for requests
