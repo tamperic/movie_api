@@ -218,26 +218,26 @@ app.get('/movies/:title', (req, res) => {
 
 // Get the data about a genre by name
 app.get('/movies/genre/:genreName', (req, res) => {
-    const genre = movies.find( movie => movie.genre.name.toLowerCase() === req.params.genreName.toLowerCase()).genre;
+    const movie = movies.find( movie => movie.genre.name.toLowerCase() === req.params.genreName.toLowerCase());
 
     // Check if genre exists
-    if(!genre) {
+    if(!movie) {
         return res.status(404).send('Genre not found.');
     }
 
-    res.json(genre);
+    res.json(movie.genre);
 });
 
 // Get the all data about a director by name
 app.get('/movies/director/:directorName', (req, res) => {
-    const director = movies.find( movie => movie.director.name.toLowerCase() === req.params.directorName.toLowerCase()).director;
+    const movie = movies.find( movie => movie.director.name.toLowerCase() === req.params.directorName.toLowerCase());
 
     // Check if director exists
-    if(!director) {
+    if(!movie) {
         return res.status(404).send('Director not found.');
     }
 
-    res.json(director);
+    res.json(movie.director);
 });
 
 
