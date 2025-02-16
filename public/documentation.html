@@ -4,30 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieFetcher Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Varela+Round&display=swap" rel="stylesheet"> 
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Quicksand", serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            font-style: normal;
+            font-size: 18px;
         }
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        table {
-            width: 80%;
-            margin: 30px;
-        }
+        h1, h2, h3 { margin: 40px 40px 0px 40px; }
+        p { margin: 20px 40px 0px 40px; }
+        table { margin: 40px;  }
+        thead { color: #d0d2dc; }
         th, td {
             padding: 15px;
+            border-collapse: collapse;
         }
         th {
-            text-align: left;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+            background-color:  #113f67; 
         }
-        tbody {
-            font-weight: 400;
-        }
-        hr {
-            margin: 30px 0px;
-        }
+        tr { background-color: #a2a8d3e2; }
+        code { font-size: 14px; }
+        hr { margin: 40px 0px; }
     </style>
 </head>
 <body>
@@ -38,7 +41,7 @@
     <hr>
 
     <h2>Getting Started</h2>
-    <h3>How to get date about movies, genres and directors?</h3>
+    <h3>How to get or change data about movies, genres and directors?</h3>
     <table>
         <thead>
             <tr>
@@ -51,71 +54,111 @@
         </thead>
         <tbody>
             <tr>
-                <th>Get the list of data about all movies</th>
-                <th>GET</th>
-                <th>/movies</th>
-                <th>None</th>
-                <th>A JSON object holding data about all movies</th>
+                <td>Get the list of data about all movies</td>
+                <td>GET</td>
+                <td>/movies</td>
+                <td>None</td>
+                <td>A JSON object holding data about all movies.</td>
             </tr>
             <tr>
-                <th>Get the all data about a single movie by title</th>
-                <th>GET</th>
-                <th>/movies/:title</th>
-                <th>None</th>
-                <th>A JSON object holding all data about one single movie:<br>
+                <td>Get the all data about a single movie by title</td>
+                <td>GET</td>
+                <td>/movies/:title</td>
+                <td>None</td>
+                <td>A JSON object holding all data about one single movie:<br>
                     <code> 
                         { <br>
-                        "title": "Nowhere",<br>
-                        "description": "Pregnant, alone and drifting in the sea, a woman trapped in a shipping container tries to survive after fleeing a devastated totalitarian country.",<br>
-                        "genre": {<br>
-                            "name": "Drama",<br>
-                            "description": "In film and television, drama is a category or genre of narrative fiction (or semi-fiction) intended to be more serious than humorous in tone. The drama of this kind is usually qualified with additional terms that specify its particular super-genre, macro-genre, or micro-genre, such as soap opera, police crime drama, political drama, legal drama, historical drama, domestic drama, teen drama, and comedy-drama (dramedy)."<br>
-                        },<br>
-                        "year": 2023,<br>
-                        "duration": "1h 49m",<br>
-                        "director": {<br>
-                            "name": "Albert Pintó",<br>
-                            "bio": "Albert Pintó Pérez was born in Terrassa, Barcelona, Catalonia, Spain. He is a director and writer, known for Nowhere (2023), Berlin (2023) and Money Heist (2017).",<br>
-                            "birth": "28 Oct 1985"<br>
-                        },<br>
-                        "actors": [<br>
-                            "Anna Castillo",<br>
-                            "Tamar Novas",<br>
-                            "Tony Corvillo"<br>
-                        ],<br>
-                        "image": "https://placehold.co/600x400/png"<br>
-                    }
+                            "_id": "h739sf9s8v0s9887s8044o", <br>
+                            "title": "Nowhere",<br>
+                            "description": "Pregnant, alone and drifting in the sea, [...].",<br>
+                            "releaseYear": 2023, <br>
+                            "rating": "6.3", <br>
+                            "genre": {<br>
+                                "name": "Drama",<br>
+                                "description": "In film and television, drama is [...]."<br>
+                            },<br>
+                            "director": {<br>
+                                "name": "Albert Pintó",<br>
+                                "bio": "Albert Pintó Pérez was born in Terrassa, Barcelona, [...].",<br>
+                                "birth": "28 Oct 1985", <br>
+                                "death": null <br>
+                            },<br>
+                            "actors": [<br>
+                                "Anna Castillo",<br>
+                                "Tamar Novas",<br>
+                                "Tony Corvillo"<br>
+                            ],<br>
+                            "imagePath": "nowhere.png"<br>
+                            "duration": "1h 49m",<br>
+                            "featured": true <br>
+                        }
                     </code>
-                </th>
+                </td>
             </tr>
             <tr>
-                <th>Get the data about a genre by name</th>
-                <th>GET</th>
-                <th>/movies/genre/:genreName</th>
-                <th>None</th>
-                <th>A JSON object holding data about a one specific genre: <br>
+                <td>Get the data about a genre by name</td>
+                <td>GET</td>
+                <td>/movies/genre/:genreName</td>
+                <td>None</td>
+                <td>A JSON object holding data about a one specific genre: <br>
                     <code>
                         {<br>
                             "name": "Action",<br>
-                            "description": "The action film is a film genre that predominantly features chase sequences, fights, shootouts, explosions, and stunt work. The specifics of what constitutes an action film has been in scholarly debate since the 1980s."<br>
+                            "description": "The action film is a film genre that [...]."<br>
                         }
                     </code>
-                </th>
+                </td>
             </tr>
             <tr>
-                <th>Get the all data about a director by name</th>
-                <th>GET</th>
-                <th>/movies/director/:directorName</th>
-                <th>None</th>
-                <th>A JSON object holding data about a one specific director: <br>
+                <td>Get the all data about a director by name</td>
+                <td>GET</td>
+                <td>/movies/director/:directorName</td>
+                <td>None</td>
+                <td>A JSON object holding data about a one specific director: <br>
                     <code>
                         {<br>
                             "name": "Mike Newell",<br>
-                            "bio": "Michael Cormac \"Mike\" Newell is an English director and producer of motion pictures for the screen and for television. After the release of Harry Potter and the Goblet of Fire in 2005, Newell became the third most commercially successful British director in recent years.",<br>
-                            "birth": "28 Mar 1942"<br>
+                            "bio": "Michael Cormac \"Mike\" Newell is an English director and producer [...].",<br>
+                            "birth": "28 Mar 1942", <br>
+                            "death": null <br>
                         }
                     </code>
-                </th>
+                </td>
+            </tr>
+            <tr>
+                <td>Get the all movies in which was a certain actor</td>
+                <td>GET</td>
+                <td>/movies/:actorName</td>
+                <td>None</td>
+                <td>A JSON object holding data about a movie/s in which was a certain actor.</td>
+            </tr>
+            <tr>
+                <td>Get the all movies which were released in a certain year</td>
+                <td>GET</td>
+                <td>/movies/:releaseYear</td>
+                <td>None</td>
+                <td>A JSON object holding data about movies released in a certain year.</td>
+            </tr>
+            <tr>
+                <td>Get the all movies with a certain rating</td>
+                <td>GET</td>
+                <td>/movies/:rating</td>
+                <td>None</td>
+                <td>A JSON object holding data about movies with a certain rating.</td>
+            </tr>
+            <tr>
+                <td>Add new actor to the actor's array in a certain movie</td>
+                <td>POST</td>
+                <td>/movies/:id/:actorName</td>
+                <td>None</td>
+                <td>A text message indicating whether the new actor has successfully added to certain movie.</td>
+            </tr>
+            <tr>
+                <td>Delete a certain movie</td>
+                <td>DELETE</td>
+                <td>/movies/:id</td>
+                <td>None</td>
+                <td>A text message indicating whether the movie has successfully removed.</td>
             </tr>
         </tbody>
     </table>
@@ -135,60 +178,64 @@
         </thead>
         <tbody>
             <tr>
-                <th>Add (register) new users</th>
-                <th>POST</th>
-                <th>/users</th>
-                <th>A JSON object holding data about the new user to add, structured like the following example:<br>
+                <td>Add (register) new users</td>
+                <td>POST</td>
+                <td>/users</td>
+                <td>A JSON object holding data about the new user to add, structured like the following example:<br>
                     <code>
                         {<br>
-                            "name": "Olga",<br>
+                            "username": "Olga White", <br>
+                            "password": "passwordExample66", <br>
+                            "email": "olgawhite66@example.com", <br>
                             "favoriteMovies": []<br>
                         }
                     </code>
-                </th>
-                <th>A JSON object holding data about the new user that was added:<br>
+                </td>
+                <td>A JSON object holding data about the new user that was added:<br>
                     <code>
                         {<br>
-                            "name": "Olga",<br>
+                            "username": "OlgaWhite", <br>
+                            "password": "passwordExample66", <br>
+                            "email": "olgawhite66@example.com", <br>
                             "favoriteMovies": [],<br>
                             "id": "d1dccc24-1151-452c-bcc3-29698835da3d"<br>
                         }
                     </code>
-                </th>
+                </td>
             </tr>
             <tr>
-                <th>Update (change) username</th>
-                <th>PUT</th>
-                <th>/users/:id</th>
-                <th>A JSON object holding new username that should be changed:<br>
+                <td>Update (change) user data</td>
+                <td>PUT</td>
+                <td>/users/:id</td>
+                <td>A JSON object holding new username that should be changed:<br>
                     <code>
                         {<br>
-                            "name": "Leandro"<br>
+                            "name": "Leandro Castillo"<br>
                         }
                     </code>
-                </th>
-                <th>A text message indicating whether the username was successfully changed.</th>
+                </td>
+                <td>A text message indicating whether the username was successfully changed.</td>
             </tr>
             <tr>
-                <th>Add a movie to the user's favorites list</th>
-                <th>POST</th>
-                <th>/users/:id/:newFavMovie</th>
-                <th>None</th>
-                <th>A text message indicating whether the user has successfully added a movie to the favorites list.</th>
+                <td>Add a movie to the user's favorites list</td>
+                <td>POST</td>
+                <td>/users/:id/:newFavMovie</td>
+                <td>None</td>
+                <td>A text message indicating whether the user has successfully added a movie to the favorites list.</td>
             </tr>
             <tr>
-                <th>Delete a movie from user's list of favorites</th>
-                <th>DELETE</th>
-                <th>/users/:id/:newFavMovie</th>
-                <th>None</th>
-                <th>A text message indicating whether the user has successfully removed a movie from the favorites list.</th>
+                <td>Delete a movie from user's list of favorites</td>
+                <td>DELETE</td>
+                <td>/users/:id/:newFavMovie</td>
+                <td>None</td>
+                <td>A text message indicating whether the user has successfully removed a movie from the favorites list.</td>
             </tr>
             <tr>
-                <th>Delete user's account (deregester)</th>
-                <th>DELETE</th>
-                <th>/users/:id</th>
-                <th>None</th>
-                <th>A text message indicating whether the user's account has successfully deleted.</th>
+                <td>Delete user's account (deregester)</td>
+                <td>DELETE</td>
+                <td>/users/:id</td>
+                <td>None</td>
+                <td>A text message indicating whether the user's account has successfully deleted.</td>
             </tr>
         </tbody>
     </table>
