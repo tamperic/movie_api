@@ -1,7 +1,14 @@
-const express = require('express'), // Import express framework
-    morgan = require('morgan'), // Import morgan logging middleware
+const express = require('express'), 
+    morgan = require('morgan'),
     bodyParser = require('body-parser'), 
-    uuid = require('uuid');
+    uuid = require('uuid'),
+    mongoose = require('mongoose'),
+    Models = require('./mdoels.js');
+
+const Movies = Models.Movie, 
+    Users = Models.User;
+
+mongoose.connect('mongodb://localhost:27017/movieFetcherDB', {useNewUrlParser: true, userUnifiedTopology: true});
 
 const app = express();
 
