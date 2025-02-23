@@ -29,7 +29,7 @@
             background-color:  #113f67; 
         }
         tr { background-color: #a2a8d3e2; }
-        code { font-size: 14px; }
+        code { font-size: 12px; }
         hr { margin: 40px 0px; }
     </style>
 </head>
@@ -41,7 +41,7 @@
     <hr>
 
     <h2>Getting Started</h2>
-    <h3>How to get or change data about movies, genres and directors?</h3>
+    <h3>How to get, change or delete data about movies?</h3>
     <table>
         <thead>
             <tr>
@@ -58,7 +58,7 @@
                 <td>GET</td>
                 <td>/movies</td>
                 <td>None</td>
-                <td>A JSON object holding data about all movies.</td>
+                <td>A JSON objects holding data about all movies.</td>
             </tr>
             <tr>
                 <td>Get the all data about a single movie by title</td>
@@ -100,12 +100,14 @@
                 <td>GET</td>
                 <td>/movies/genre/:genreName</td>
                 <td>None</td>
-                <td>A JSON object holding data about a one specific genre: <br>
+                <td>A JSON object holding data about a movie/s with a certain genre: <br>
                     <code>
-                        {<br>
+                        [...]<br>
+                        "genre": {<br>
                             "name": "Action",<br>
                             "description": "The action film is a film genre that [...]."<br>
-                        }
+                        },<br>
+                        [...]<br>
                     </code>
                 </td>
             </tr>
@@ -114,14 +116,16 @@
                 <td>GET</td>
                 <td>/movies/director/:directorName</td>
                 <td>None</td>
-                <td>A JSON object holding data about a one specific director: <br>
+                <td>A JSON object holding data about a movie/s with a certain director: <br>
                     <code>
-                        {<br>
+                        [...]<br>
+                        "director": {<br>
                             "name": "Mike Newell",<br>
                             "bio": "Michael Cormac \"Mike\" Newell is an English director and producer [...].",<br>
                             "birth": "28 Mar 1942", <br>
                             "death": null <br>
-                        }
+                        },<br>
+                        [...]<br>
                     </code>
                 </td>
             </tr>
@@ -133,30 +137,68 @@
                 <td>A JSON object holding data about a movie/s in which was a certain actor.</td>
             </tr>
             <tr>
-                <td>Get the all movies which were released in a certain year</td>
+                <td>Get all movies which were released in a certain year</td>
                 <td>GET</td>
-                <td>/movies/:releaseYear</td>
+                <td>/movies/releaseYear/:year</td>
                 <td>None</td>
                 <td>A JSON object holding data about movies released in a certain year.</td>
             </tr>
             <tr>
-                <td>Get the all movies with a certain rating</td>
+                <td>Get all movies with a certain rating</td>
                 <td>GET</td>
-                <td>/movies/:rating</td>
+                <td>/movies/rating/:ratingNumber</td>
                 <td>None</td>
                 <td>A JSON object holding data about movies with a certain rating.</td>
             </tr>
             <tr>
                 <td>Add new actor to the actor's array in a certain movie</td>
                 <td>POST</td>
-                <td>/movies/:id/:actorName</td>
+                <td>/movies/:title/:actorName</td>
                 <td>None</td>
-                <td>A text message indicating whether the new actor has successfully added to certain movie.</td>
+                <td>A JSON object with successfully added actor into an actors array of a certain movie:<br>
+                    <code>
+                        [...]<br>
+                        "_id": "67af8264d384a7b4a98110eb",<br>
+                        "title": "Memoirs of a Geisha",<br>
+                        "description": "Sold to a geisha house as a child, a fisherman's daughter becomes the most sought-after geisha in Kyoto, but rivalries threaten the destiny she desires.",<br>
+                        "releaseYear": 2005,<br>
+                        "rating": "7.3",<br>
+                        "actors": [<br>
+                            "Zhang Ziyi",<br>
+                            "Ken Watanabe",<br>
+                            "Koji Yakusho",<br>
+                            "Kaori Momoi"<br>
+                        ],<br>
+                        [...]
+                    </code>
+                </td>
+            </tr>
+            <tr>
+                <td>Delete an actor from the actor's array of a certain movie</td>
+                <td>DELETE</td>
+                <td>/movies/:title/:actorName</td>
+                <td>None</td>
+                <td>A JSON object with successfully deleted actor into an actors array of a certain movie:<br>
+                    <code>
+                        [...]<br>
+                        "_id": "67af8264d384a7b4a98110eb",<br>
+                        "title": "Memoirs of a Geisha",<br>
+                        "description": "Sold to a geisha house as a child, a fisherman's daughter becomes the most sought-after geisha in Kyoto, but rivalries threaten the destiny she desires.",<br>
+                        "releaseYear": 2005,<br>
+                        "rating": "7.3",<br>
+                        "actors": [<br>
+                            "Zhang Ziyi",<br>
+                            "Ken Watanabe",<br>
+                            "Koji Yakusho"<br>
+                        ],<br>
+                        [...]
+                    </code>
+                </td>
             </tr>
             <tr>
                 <td>Delete a certain movie</td>
                 <td>DELETE</td>
-                <td>/movies/:id</td>
+                <td>/movies/:title</td>
                 <td>None</td>
                 <td>A text message indicating whether the movie has successfully removed.</td>
             </tr>
@@ -178,6 +220,34 @@
         </thead>
         <tbody>
             <tr>
+                <td>Get a list of all users</td>
+                <td>GET</td>
+                <td>/users</td>
+                <td>None</td>
+                <td>A JSON objects holding data about all users.</td>
+            </tr>
+            <tr>
+                <td>Get a certain user by username</td>
+                <td>GET</td>
+                <td>/users/:username</td>
+                <td>None</td>
+                <td>A JSON object holding data about one certain user:<br>
+                    <code>
+                        {<br>
+                            "_id": "67aff512d384a7b4a98110f8",<br>
+                            "username": "emily_brown",<br>
+                            "password": "passw0rd567",<br>
+                            "email": "emily_brown@example.com",<br>
+                            "birthDate": "1992-11-30T00:00:00.000Z",<br>
+                            "favoriteMovies": [<br>
+                                "67af9f09d384a7b4a98110f4",<br>
+                                "67af6cd4d384a7b4a98110e7"<br>
+                            ]<br>
+                        }
+                    <code>
+                </td>
+            </tr>
+            <tr>
                 <td>Add (register) new users</td>
                 <td>POST</td>
                 <td>/users</td>
@@ -186,6 +256,7 @@
                         {<br>
                             "username": "Olga White", <br>
                             "password": "passwordExample66", <br>
+                            "birthDate": "1993-05-07",<br>
                             "email": "olgawhite66@example.com", <br>
                             "favoriteMovies": []<br>
                         }
@@ -197,8 +268,10 @@
                             "username": "OlgaWhite", <br>
                             "password": "passwordExample66", <br>
                             "email": "olgawhite66@example.com", <br>
+                            "birthDate": "1993-05-07T00:00:00.000Z",<br>
                             "favoriteMovies": [],<br>
-                            "id": "d1dccc24-1151-452c-bcc3-29698835da3d"<br>
+                            "id": "d1dccc24-1151-452c-bcc3-29698835da3d",<br>
+                            "__v": 0<br>
                         }
                     </code>
                 </td>
@@ -206,34 +279,47 @@
             <tr>
                 <td>Update (change) user data</td>
                 <td>PUT</td>
-                <td>/users/:id</td>
+                <td>/users/:username</td>
                 <td>A JSON object holding new username that should be changed:<br>
                     <code>
                         {<br>
-                            "name": "Leandro Castillo"<br>
+                            "username": "Olga Black",<br>
+                            "email": "olgablack66@example.com"<br>
                         }
                     </code>
                 </td>
-                <td>A text message indicating whether the username was successfully changed.</td>
+                <td>A JSON object with updated about user:<br>
+                    <code>
+                        {<br>
+                            "_id": "67bb10c04b62c71eb1911f4f",<br>
+                            "username": "Olga Black",<br>
+                            "password": "passwordExample66",<br>
+                            "email": "olgablack66@example.com",<br>
+                            "birthday": "1993-05-07T00:00:00.000Z",<br>
+                            "favoriteMovies": [],<br>
+                            "__v": 0<br>
+                        }
+                    </code>
+                </td>
             </tr>
             <tr>
                 <td>Add a movie to the user's favorites list</td>
                 <td>POST</td>
-                <td>/users/:id/:newFavMovie</td>
+                <td>/users/:username/movies/:movieID</td>
                 <td>None</td>
-                <td>A text message indicating whether the user has successfully added a movie to the favorites list.</td>
+                <td>A JSON object of one user with successfully added movie to the favorites list.</td>
             </tr>
             <tr>
                 <td>Delete a movie from user's list of favorites</td>
                 <td>DELETE</td>
-                <td>/users/:id/:newFavMovie</td>
+                <td>/users/:username/movies/:movieID</td>
                 <td>None</td>
-                <td>A text message indicating whether the user has successfully removed a movie from the favorites list.</td>
+                <td>A JSON object of one user with successfully removed movie from the favorites list.</td>
             </tr>
             <tr>
                 <td>Delete user's account (deregester)</td>
                 <td>DELETE</td>
-                <td>/users/:id</td>
+                <td>/users/:username</td>
                 <td>None</td>
                 <td>A text message indicating whether the user's account has successfully deleted.</td>
             </tr>
