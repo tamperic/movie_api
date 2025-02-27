@@ -21,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Get static file 'documentation.html'
 
+let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
 
