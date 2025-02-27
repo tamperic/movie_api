@@ -22,6 +22,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Get static file 'documentation.html'
 
+const cors = require('cors');
+app.use(cors()); // By default set to allow requests from all origins 
+
 let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
