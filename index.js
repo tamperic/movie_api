@@ -219,14 +219,15 @@ app.get('/users/:username', passport.authenticate('jwt', {session: false}), asyn
 
 // Add (register) new users
 app.post('/users', async (req, res) => {
-    await Users.findOne({username: req.body.username})
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    await Users.findOne({username: req.body.username}) // If a user with the requested username already exists
     .then((user) => {
         if(user) {
             res.status(400).send('User ' + req.body.username + ' already exists.')
         } else {
             Users.create({
                     username: req.body.username,
-                    password: req.body.password,
+                    password: hashedPassword,
                     email: req.body.email,
                     birthDate: req.body.birthDate
                 })
