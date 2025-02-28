@@ -219,58 +219,84 @@ app.get('/users/:username', passport.authenticate('jwt', {session: false}), asyn
 });
 
 // Add (register) new users
-app.post('/users', async (req, res) => {
-    let hashedPassword = Users.hashPassword(req.body.Password);
-    await Users.findOne({username: req.body.username}) // If a user with the requested username already exists
-    .then((user) => {
-        if(user) {
-            res.status(400).send('User ' + req.body.username + ' already exists.')
-        } else {
-            Users.create({
-                    username: req.body.username,
-                    password: hashedPassword,
-                    email: req.body.email,
-                    birthDate: req.body.birthDate
-                })
-                .then((user) => {
-                    res.status(201).json(user);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    res.status(500).send('Error: ' + err);
-                })
+app.post('/users', 
+    [
+        check('username', 'Username is required').isLength({min: 5}),
+        check('username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('password', 'Password is required.').not().isEmpty(),
+        check('email', 'Email does not appear to be valid.').isEmail()
+    ], async (req, res) => {
+        // Check the validation object for errors
+        let errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(500).send('Error: ' + err);
-    })
-});
+
+        let hashedPassword = Users.hashPassword(req.body.Password);
+        await Users.findOne({username: req.body.username}) // If a user with the requested username already exists
+        .then((user) => {
+            if(user) {
+                res.status(400).send('User ' + req.body.username + ' already exists.')
+            } else {
+                Users.create({
+                        username: req.body.username,
+                        password: hashedPassword,
+                        email: req.body.email,
+                        birthDate: req.body.birthDate
+                    })
+                    .then((user) => {
+                        res.status(201).json(user);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        res.status(500).send('Error: ' + err);
+                    })
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        })
+    }
+);
 
 // Update a user's information, by username
-app.put('/users/:username', passport.authenticate('jwt', {session: false}), async (req, res)  => {
-    // Condition to check match between username in URL param. and username of currently authenticated user
-    if(req.user.username !== req.params.username){
-       return res.status(400).send('Permission denied.');
-    }
-    // Condition ends
-    await Users.findOneAndUpdate({username: req.params.username}, {$set:
-        {
-            username: req.body.username,
-            password: req.body.password,
-            email: req.body.email,
-            birthDate: req.body.birthDate
+app.put('/users/:username', passport.authenticate('jwt', {session: false}), 
+    [
+        check('username', 'Username is required').isLength({min: 5}),
+        check('username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('password', 'Password is required.').not().isEmpty(),
+        check('email', 'Email does not appear to be valid.').isEmail()
+    ], async (req, res)  => {
+        // Check the validation object for errors
+        let errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-    },
-    {new: true}) // Make sure that the updated document is returned
-    .then((updatedUser) => {
-        res.status(200).json(updatedUser);
-    })
-    .catch((err) => {
-        console.error(err);
-        res.status(500).send('Error: ' + err);
-    })
-});
+
+        // Condition to check match between username in URL param. and username of currently authenticated user
+        if(req.user.username !== req.params.username){
+            return res.status(400).send('Permission denied.');
+        }
+        // Condition ends
+        let hashedPassword = Users.hashPassword(req.body.Password);
+        await Users.findOneAndUpdate({username: req.params.username}, {$set:
+            {
+                username: req.body.username,
+                password: hashedPassword,
+                email: req.body.email,
+                birthDate: req.body.birthDate
+            }
+        }, {new: true}) // Make sure that the updated document is returned
+        .then((updatedUser) => {
+            res.status(200).json(updatedUser);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        })
+    }
+);
 
 // Add a movie to the user's favorites list
 app.post('/users/:username/movies/:movieID', passport.authenticate('jwt', {session: false}), async (req, res)  => {
