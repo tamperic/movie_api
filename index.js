@@ -1,9 +1,10 @@
-const express = require('express'), 
+const express = require('express'), // A backend framework for building RESTful API with Node.js
     morgan = require('morgan'),
     bodyParser = require('body-parser'), 
     uuid = require('uuid'),
     mongoose = require('mongoose'),
-    Models = require('./models.js');
+    Models = require('./models.js'),
+    { check, validationResult } = require('express-validator'); // Library with validation methods on backend for different types of inputted data
 
 const Movies = Models.Movie; 
 const Users = Models.User;
