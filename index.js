@@ -30,6 +30,10 @@ let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
 
+// Welcome message
+app.get('/', async (req, res) => {
+    return res.send('Welcome to MovieFetcher Application!');
+});
 
 // MOVIES
 
