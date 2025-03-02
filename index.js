@@ -9,7 +9,13 @@ const express = require('express'), // A backend framework for building RESTful 
 const Movies = Models.Movie; 
 const Users = Models.User;
 
-mongoose.connect(process.env.CONNECTION_URI);
+mongoose.connect(process.env.CONNECTION_URI) // Load the URI from environment variable
+    .then(() => console.log('MongoDB connected'))
+    .catch((err) => console.log('MongoDB connection error:', err));
+
+// mongoose.connect('mongodb://localhost:27017/movieFetcherDB')
+//  .then(() => console.log('MongoDB connected'))
+//  .catch((err) => console.log('MongoDB connection error:', err));
 
 const app = express();
 
