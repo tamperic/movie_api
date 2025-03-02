@@ -100,14 +100,13 @@
                 <td>GET</td>
                 <td>/movies/genre/:genreName</td>
                 <td>None</td>
-                <td>A JSON object holding data about a movie/s with a certain genre: <br>
+                <td>A JSON object holding data about a certain genre and a movie titl(e) of that genre: <br>
                     <code>
-                        [...]<br>
-                        "genre": {<br>
-                            "name": "Action",<br>
-                            "description": "The action film is a film genre that [...]."<br>
-                        },<br>
-                        [...]<br>
+                        {<br>
+                            "name": "Horror",<br>
+                            "description": "Horror films are centered around the dark [...].",<br>
+                            "title": "Blood Red Sky"<br>
+                        }
                     </code>
                 </td>
             </tr>
@@ -116,25 +115,35 @@
                 <td>GET</td>
                 <td>/movies/director/:directorName</td>
                 <td>None</td>
-                <td>A JSON object holding data about a movie/s with a certain director: <br>
+                <td>A JSON object holding data about a certain director and a title(s) of the movie(s) he directed: <br>
                     <code>
-                        [...]<br>
-                        "director": {<br>
-                            "name": "Mike Newell",<br>
-                            "bio": "Michael Cormac \"Mike\" Newell is an English director and producer [...].",<br>
-                            "birth": "28 Mar 1942", <br>
-                            "death": null <br>
-                        },<br>
-                        [...]<br>
+                        {<br>
+                            "name": "Tim Burton",<br>
+                            "bio": "Timothy Walter Burton is an American film director, [...].",<br>
+                            "birth": "25 Aug 1958",<br>
+                            "death": null,<br>
+                            "title": "Charlie and the Chocolate Factory"<br>
+                        }
                     </code>
                 </td>
             </tr>
             <tr>
-                <td>Get the all movies in which was a certain actor</td>
+                <td>Get all movies in which was a certain actor</td>
                 <td>GET</td>
                 <td>/movies/:actorName</td>
                 <td>None</td>
-                <td>A JSON object holding data about a movie/s in which was a certain actor.</td>
+                <td>A JSON object holding movie title(s) in which was a certain actor:<br>
+                    <code>
+                        {<br>
+                            "actor": "Keanu Reeves",<br>
+                            "title": "John Wick"<br>
+                        },<br>
+                        {<br>
+                            "actor": "Keanu Reeves",<br>
+                            "title": "John Wick: Chapter 4"<br>
+                        }
+                    </code>
+                </td>
             </tr>
             <tr>
                 <td>Get all movies which were released in a certain year</td>
@@ -149,6 +158,42 @@
                 <td>/movies/rating/:ratingNumber</td>
                 <td>None</td>
                 <td>A JSON object holding data about movies with a certain rating.</td>
+            </tr>
+            <tr>
+                <td>Add new movie</td>
+                <td>POST</td>
+                <td>/movies</td>
+                <td>A JSON object holding data about movie:<br>
+                    <code>
+                        "title": "Memoirs of a Geisha",<br>
+                        "description": "Sold to a geisha house as a child, [...].",<br>
+                        "releaseYear": 2005,<br>
+                        "rating": "7.3",<br>
+                        "actors": [<br>
+                            "Zhang Ziyi",<br>
+                            "Ken Watanabe",<br>
+                            "Koji Yakusho",<br>
+                            "Kaori Momoi"<br>
+                        ],<br>
+                        [...]
+                    </code>
+                </td>
+                <td>A JSON object with successfully added movie:<br>
+                    <code>
+                        "_id": "67af8264d384a7b4a98110eb",<br>
+                        "title": "Memoirs of a Geisha",<br>
+                        "description": "Sold to a geisha house as a child, [...].",<br>
+                        "releaseYear": 2005,<br>
+                        "rating": "7.3",<br>
+                        "actors": [<br>
+                            "Zhang Ziyi",<br>
+                            "Ken Watanabe",<br>
+                            "Koji Yakusho",<br>
+                            "Kaori Momoi"<br>
+                        ],<br>
+                        [...]
+                    </code>
+                </td>
             </tr>
             <tr>
                 <td>Add new actor to the actor's array in a certain movie</td>
