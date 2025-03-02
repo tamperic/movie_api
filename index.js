@@ -47,6 +47,41 @@ app.get('/movies', passport.authenticate('jwt', {session: false}), async (req, r
         })
 });
 
+// Add new movie
+app.post('/movies', passport.authenticate('jwt', {session: false}), 
+    [
+        check('title', 'Title contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('title', 'Title is required').isLength({min: 2}),
+        check('description', 'Description contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('description', 'Description is required.').not().isEmpty(),
+        check('genre', 'Genre contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('genre', 'Name of genre is required.').not().isEmpty(),
+        check('director', 'Director contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('director', 'Name of director is required.').not().isEmpty()
+    ], async (req, res) => {
+    await Movies.findOne({title: req.body.title}) // If a movie under requested title already exists
+    .then((movie) => {
+        if(movie) {
+            res.status(400).send('Movie with title "' + req.body.title + '" already exists.');
+        } else {
+            Movies.create({
+                title: req.body.title,
+                description: req.body.description,
+                'genre.name': req.body.genre,
+                'director.name': req.body.director
+            })
+            .then()
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send('Error: ' + err);
+            })
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+    })
+});
 
 // Get the all data about a single movie by title
 app.get('/movies/:title', passport.authenticate('jwt', {session: false}), async (req, res) => {
@@ -71,7 +106,8 @@ app.get('/movies/genre/:genreName', passport.authenticate('jwt', {session: false
             if (!movie) {
                 res.status(404).send('Genre ' + req.params.genreName + ' was not found.')
             } else {
-                res.status(200).json(movie);
+                const genres = movie.map(movie => ({...movie.genre, title: movie.title}));
+                res.status(200).json(genres);
             }
         })
         .catch((err) => {
@@ -86,9 +122,10 @@ app.get('/movies/director/:directorName', passport.authenticate('jwt', {session:
     .then((movie) => {
         if (!movie) {
             res.status(404).send('Director ' + req.params.directorName + ' was not found.')
-        } 
-            res.status(200).json(movie);
-        
+        } else {
+            const directors = movie.map(movie => ({...movie.director, title: movie.title}));
+            res.status(200).json(directors);
+        }
     })
     .catch((err) => {
         console.error(err);
@@ -103,7 +140,8 @@ app.get('/movies/actors/:actorName', passport.authenticate('jwt', {session: fals
         if (!movie) {
             res.status(404).send('Actor ' + req.params.actorName + ' was not found.')
         } else {
-            res.status(200).json(movie);
+            const actors = movie.map(movie => ({actor: req.params.actorName, title: movie.title}));
+            res.status(200).json(actors);
         }
     })
     .catch((err) => {
@@ -234,7 +272,7 @@ app.post('/users',
             return res.status(422).json({ errors: errors.array() });
         }
 
-        let hashedPassword = Users.hashPassword(req.body.Password);
+        let hashedPassword = Users.hashPassword(req.body.password);
         await Users.findOne({username: req.body.username}) // If a user with the requested username already exists
         .then((user) => {
             if(user) {
