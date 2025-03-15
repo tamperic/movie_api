@@ -77,7 +77,9 @@ app.post('/movies', passport.authenticate('jwt', {session: false}),
                 'genre.name': req.body.genre,
                 'director.name': req.body.director
             })
-            .then()
+            .then((movie) => {
+                res.status(201).json(movie);
+            })
             .catch((err) => {
                 console.error(err);
                 res.status(500).send('Error: ' + err);
