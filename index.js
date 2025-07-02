@@ -1,3 +1,9 @@
+/**
+ * @file Entry point for the MovieFetcher API server.
+ * Sets up Express middleware, connects to MongoDB, and defines core endpoints.
+ */
+
+// Required external modules
 const express = require('express'), // A backend framework for building RESTful API with Node.js
     morgan = require('morgan'),
     bodyParser = require('body-parser'), 
@@ -6,10 +12,12 @@ const express = require('express'), // A backend framework for building RESTful 
     Models = require('./models.js'),
     { check, validationResult } = require('express-validator'); // Library with validation methods on backend for different types of inputted data
 
+// Models
 const Movies = Models.Movie; 
 const Users = Models.User;
 
-mongoose.connect(process.env.CONNECTION_URI) // Load the URI from environment variable
+// Connect to MongoDB using the URI from environment variables
+mongoose.connect(process.env.CONNECTION_URI)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log('MongoDB connection error:', err));
 
@@ -17,31 +25,52 @@ mongoose.connect(process.env.CONNECTION_URI) // Load the URI from environment va
 //  .then(() => console.log('MongoDB connected'))
 //  .catch((err) => console.log('MongoDB connection error:', err));
 
+// Create Express app
 const app = express();
 
 // Middleware
-app.use(morgan('common'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public')); // Get static file 'documentation.html'
+app.use(morgan('common'));                              // Log HTTP requests to the console
+app.use(bodyParser.json());                             // Parse JSON bodies
+app.use(bodyParser.urlencoded({ extended: true }));     // Parse URL-encoded bodies 
+app.use(express.json());                                // Built-in body parser for JSON
+app.use(express.urlencoded({ extended: true }));        // Built-in parser for form data
+app.use(express.static('public'));                      // Get static file 'documentation.html'
 
+// Enable CORS for all origins by default
 const cors = require('cors');
-app.use(cors()); // By default set to allow requests from all origins 
+app.use(cors());
 
+/**
+ * @requires ./auth
+ * Initialize authentication (JWT-based)
+ */
 let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
 
-// Welcome message
+
+/**
+ * @route GET /
+ * @returns {string} Welcome message
+ * @description Root route that returns a welcome message to confirm the server is running
+ */
 app.get('/', async (req, res) => {
     return res.send('Welcome to MovieFetcher Application!');
 });
 
-// MOVIES
 
-// Get the list of data about all movies
+
+// =====================
+// 🎬 MOVIES ENDPOINTS
+// =====================
+
+/**
+ * @route GET /movies
+ * @group Movies - Operations related to movies
+ * @returns {Array<Object>} 201 - An array of all movies
+ * @returns {Error} 500 - Internal server error
+ * @description Gets a list of all movies from the database.
+ */
 // app.get('/movies', passport.authenticate('jwt', {session: false}), async (req, res) => {
   app.get('/movies', async (req, res) => {
     await Movies.find()
@@ -54,7 +83,20 @@ app.get('/', async (req, res) => {
         })
 });
 
-// Add new movie
+
+/**
+ * @route POST /movies
+ * @group Movies - Operations related to movies
+ * @param {string} title.body.required - Movie title
+ * @param {string} description.body.required - Movie description
+ * @param {string} genre.body.required - Movie genre
+ * @param {string} director.body.required - Director's name
+ * @returns {Object} 201 - Movie successfully created
+ * @returns {Error} 400 - Movie with the given title already exists
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Adds a new movie to the database. Requires JWT authentication.
+ */
 app.post('/movies', passport.authenticate('jwt', {session: false}), 
     [
         check('title', 'Title contains non alphanumeric characters - not allowed.').isAlphanumeric(),
@@ -92,7 +134,17 @@ app.post('/movies', passport.authenticate('jwt', {session: false}),
     })
 });
 
-// Get the all data about a single movie by title
+
+/**
+ * @route GET /movies/:title
+ * @group Movies - Operations related to movies
+ * @param {string} title.path.required - Title of the movie to retrieve
+ * @returns {Object} 200 - Movie data
+ * @returns {Error} 404 - Movie not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets detailed information about a single movie by its title (case-insensitive).
+ */
 app.get('/movies/:title', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.findOne({title: { $regex: new RegExp(req.params.title, 'i') }})
         .then((movie) => {
@@ -108,7 +160,18 @@ app.get('/movies/:title', passport.authenticate('jwt', {session: false}), async 
         })
 });
 
-// Get the data about a genre by name
+
+/**
+ * @route GET /movies/genre/:genreName
+ * @group Movies - Operations related to movies
+ * @param {string} genreName.path.required - Name of the genre to search for
+ * @returns {Array<Object>} 200 - Array of genre information along with movie titles
+ * @returns {Error} 404 - Genre not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets all movies that match a specific genre (case-insensitive). 
+ * Returns genre data with the associated movie title for each match.
+ */
 app.get('/movies/genre/:genreName', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.find({ 'genre.name': { $regex: new RegExp(req.params.genreName, 'i') }})
         .then((movie) => {
@@ -125,7 +188,18 @@ app.get('/movies/genre/:genreName', passport.authenticate('jwt', {session: false
         })
 });
 
-// Get the all data about a director by name
+
+/**
+ * @route GET /movies/director/:directorName
+ * @group Movies - Operations related to movies
+ * @param {string} directorName.path.required - Name of the director to search for
+ * @returns {Array<Object>} 200 - Array of director information along with movie titles
+ * @returns {Error} 404 - Director not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets all movies by a specific director (case-insensitive). 
+ * Returns director data with the associated movie title for each match.
+ */
 app.get('/movies/director/:directorName', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.find({ 'director.name': { $regex: new RegExp(req.params.directorName, 'i') }})
     .then((movie) => {
@@ -142,7 +216,17 @@ app.get('/movies/director/:directorName', passport.authenticate('jwt', {session:
     })
 });
 
-// Get a movie by actor
+
+/**
+ * @route GET /movies/actors/:actorName
+ * @group Movies - Operations related to movies
+ * @param {string} actorName.path.required - Name of the actor to search for
+ * @returns {Array<Object>} 200 - Array of movie titles that include the specified actor
+ * @returns {Error} 404 - Actor not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets all movies that include a specific actor. Returns the actor's name and movie titles.
+ */
 app.get('/movies/actors/:actorName', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.find({ actors: { $regex: new RegExp(req.params.actorName, 'i') }})
     .then((movie) => {
@@ -159,7 +243,17 @@ app.get('/movies/actors/:actorName', passport.authenticate('jwt', {session: fals
     })
 });
 
-// Get a movie by release year
+
+/**
+ * @route GET /movies/releaseYear/:year
+ * @group Movies - Operations related to movies
+ * @param {number} year.path.required - Release year to search for
+ * @returns {Array<Object>} 200 - Array of movies released in the specified year
+ * @returns {Error} 404 - No movies found for the given year
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets all movies released in a specific year.
+ */
 app.get('/movies/releaseYear/:year', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.find({ releaseYear : req.params.year})
     .then((movie) => {
@@ -175,7 +269,17 @@ app.get('/movies/releaseYear/:year', passport.authenticate('jwt', {session: fals
     })
 });
 
-// Get a movie by rating
+
+/**
+ * @route GET /movies/rating/:ratingNumber
+ * @group Movies - Operations related to movies
+ * @param {number} ratingNumber.path.required - Rating value to search for
+ * @returns {Array<Object>} 200 - Array of movies with the specified rating
+ * @returns {Error} 404 - No movies found with the given rating
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Retrieves all movies that match a given rating.
+ */
 app.get('/movies/rating/:ratingNumber', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.find({ rating : req.params.ratingNumber})
     .then((movie) => {
@@ -191,12 +295,23 @@ app.get('/movies/rating/:ratingNumber', passport.authenticate('jwt', {session: f
     })
 });
 
-// Add new actor 
+
+/**
+ * @route POST /movies/:title/:actorName
+ * @group Movies - Operations related to movies
+ * @param {string} title.path.required - Title of the movie to update
+ * @param {string} actorName.path.required - Name of the actor to add
+ * @returns {Object} 200 - Updated movie document with new actor added
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Adds a new actor of a specific movie by title.
+ */
 app.post('/movies/:title/:actorName', passport.authenticate('jwt', {session: false}), async (req, res)  => {
-    await Movies.findOneAndUpdate({title: req.params.title}, {$push:
-        {actors: req.params.actorName}
-    },
-    {new: true}) // Make sure that the updated document is returned
+    await Movies.findOneAndUpdate(
+        {title: req.params.title}, 
+        {$push: {actors: req.params.actorName} },
+        {new: true}     // Return the updated document
+    ) 
     .then((updatedMovie) => {
         res.status(200).json(updatedMovie);
     })
@@ -206,12 +321,23 @@ app.post('/movies/:title/:actorName', passport.authenticate('jwt', {session: fal
     })
 });
 
-// Delete a certain actor 
+
+/**
+ * @route DELETE /movies/:title/:actorName
+ * @group Movies - Operations related to movies
+ * @param {string} title.path.required - Title of the movie to update
+ * @param {string} actorName.path.required - Name of the actor to remove
+ * @returns {Object} 200 - Updated movie document after actor was removed
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Deletes a certain actor from an actor's array of a specific movie by title.
+ */
 app.delete('/movies/:title/:actorName', passport.authenticate('jwt', {session: false}), async (req, res)  => {
-    await Movies.findOneAndUpdate({title: req.params.title}, {$pull:
-        {actors: req.params.actorName}
-    },
-    {new: true}) // Make sure that the updated document is returned
+    await Movies.findOneAndUpdate(
+        {title: req.params.title}, 
+        {$pull: {actors: req.params.actorName} },
+        {new: true}     // Return the updated document
+    )
     .then((updatedMovie) => {
         res.status(200).json(updatedMovie);
     })
@@ -221,7 +347,16 @@ app.delete('/movies/:title/:actorName', passport.authenticate('jwt', {session: f
     })
 });
 
-// Delete a certain movie by title
+/**
+ * @route DELETE /movies/:title
+ * @group Movies - Operations related to movies
+ * @param {string} title.path.required - Title of the movie to delete
+ * @returns {string} 200 - Feedback message that the movie was deleted
+ * @returns {Error} 404 - Movie not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Deletes a movie from the database based on the title.
+ */
 app.delete('/movies/:title', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Movies.findOneAndDelete({title: req.params.title})
     .then((movie) => {
@@ -237,9 +372,21 @@ app.delete('/movies/:title', passport.authenticate('jwt', {session: false}), asy
     })
 })
 
-// USERS
 
-//Get all users
+
+// =====================
+// 👤 USERS ENDPOINTS
+// =====================
+
+
+/**
+ * @route GET /users
+ * @group Users - Operations about users
+ * @returns {Array.<User>} 200 - An array of all registered users
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets all user accounts.
+ */
 app.get('/users', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Users.find()
     .then((users) => {
@@ -251,7 +398,17 @@ app.get('/users', passport.authenticate('jwt', {session: false}), async (req, re
     })
 });
 
-// Get a user by username
+
+/**
+ * @route GET /users/:username
+ * @group Users - Operations about users
+ * @param {string} username.path.required - Username to fetch
+ * @returns {User.model} 200 - The requested user's data
+ * @returns {Error} 404 - User not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Gets a specific user by username.
+ */
 app.get('/users/:username', passport.authenticate('jwt', {session: false}), async (req, res) => {
     await Users.findOne({username: req.params.username})
     .then((user) => {
@@ -267,7 +424,17 @@ app.get('/users/:username', passport.authenticate('jwt', {session: false}), asyn
     })
 });
 
-// Add (register) new users
+
+/**
+ * @route POST /users
+ * @group Users - Operations about users
+ * @param {User.model} user.body.required - The new user's data
+ * @returns {User.model} 201 - New created user
+ * @returns {Error} 400 - User already exists
+ * @returns {Error} 422 - Validation error
+ * @returns {Error} 500 - Internal server error
+ * @description Adds a new user after validating username, password, and email.
+ */
 app.post('/users', 
     [
         check('username', 'Username is required').isLength({min: 5}),
@@ -309,7 +476,18 @@ app.post('/users',
     }
 );
 
-// Update a user's information, by username
+/**
+ * @route PUT /users/:username
+ * @group Users - Operations about users
+ * @param {string} username.path.required - Current username
+ * @param {User.model} user.body.required - Updated user data
+ * @returns {User.model} 200 - Updated user object
+ * @returns {Error} 400 - Permission denied, invalid input
+ * @returns {Error} 422 - Validation error
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Updates a user's account data (username, password, email, birth date). Only the user themself can update.
+ */
 app.put('/users/:username', passport.authenticate('jwt', {session: false}), 
     [
         check('username', 'Username is required').isLength({min: 5}),
@@ -329,14 +507,16 @@ app.put('/users/:username', passport.authenticate('jwt', {session: false}),
         }
         // Condition ends
         let hashedPassword = Users.hashPassword(req.body.password);
-        await Users.findOneAndUpdate({username: req.params.username}, {$set:
-            {
+        await Users.findOneAndUpdate(
+            {username: req.params.username}, 
+            {$set: {
                 username: req.body.username,
                 password: hashedPassword,
                 email: req.body.email,
                 birthDate: req.body.birthDate
-            }
-        }, {new: true}) // Make sure that the updated document is returned
+            } }, 
+            {new: true}        // Return the updated document
+        ) 
         .then((updatedUser) => {
             res.status(200).json(updatedUser);
         })
@@ -347,12 +527,23 @@ app.put('/users/:username', passport.authenticate('jwt', {session: false}),
     }
 );
 
-// Add a movie to the user's favorites list
+
+/**
+ * @route POST /users/:username/movies/:movieID
+ * @group Users - Operations about users
+ * @param {string} username.path.required - Username
+ * @param {string} movieID.path.required - Movie ID to add to favorites
+ * @returns {User.model} 201 - Updated user with new favorite movie
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Adds a movie to the user's list of favorite movies.
+ */
 app.post('/users/:username/movies/:movieID', passport.authenticate('jwt', {session: false}), async (req, res)  => {
-    await Users.findOneAndUpdate({username: req.params.username}, {$push:
-        {favoriteMovies: req.params.movieID}
-    },
-    {new: true}) // Make sure that the updated document is returned
+    await Users.findOneAndUpdate(
+        {username: req.params.username}, 
+        {$push: {favoriteMovies: req.params.movieID} },
+        {new: true}     // Return the updated document
+    )
     .then((updatedUser) => {
         res.status(201).json(updatedUser)
     })
@@ -362,12 +553,23 @@ app.post('/users/:username/movies/:movieID', passport.authenticate('jwt', {sessi
     }) 
 });
 
-// Delete a movie from user's list of favorites
+
+/**
+ * @route DELETE /users/:username/movies/:movieID
+ * @group Users - Operations about users
+ * @param {string} username.path.required - Username
+ * @param {string} movieID.path.required - Movie ID to remove from favorites
+ * @returns {User.model} 200 - Updated user with movie removed
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Removes a movie from the user's list of favorites.
+ */
 app.delete('/users/:username/movies/:movieID', passport.authenticate('jwt', {session: false}), async (req, res)  => {
-    await Users.findOneAndUpdate({username: req.params.username}, {$pull:
-        {favoriteMovies: req.params.movieID}
-    },
-    {new: true}) // Make sure that the updated document is returned
+    await Users.findOneAndUpdate(
+        {username: req.params.username}, 
+        {$pull: {favoriteMovies: req.params.movieID} },
+        {new: true}     // Return the updated document
+    ) 
     .then((updatedUser) => {
         res.status(200).json(updatedUser)
     })
@@ -377,7 +579,17 @@ app.delete('/users/:username/movies/:movieID', passport.authenticate('jwt', {ses
     }) 
 });
 
-// Delete user's account (deregester) by username
+
+/**
+ * @route DELETE /users/:username
+ * @group Users - Operations about users
+ * @param {string} username.path.required - Username to delete
+ * @returns {string} 200 - Feedback message if deleted
+ * @returns {Error} 404 - User not found
+ * @returns {Error} 500 - Internal server error
+ * @security JWT
+ * @description Deletes a user account by username.
+ */
 app.delete('/users/:username', passport.authenticate('jwt', {session: false}), async (req, res)  => {
     await Users.findOneAndDelete({username: req.params.username})
     .then((user) => {
