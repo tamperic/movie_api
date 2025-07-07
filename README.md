@@ -37,7 +37,7 @@ or
 yarn install
 ```
 
-### 3. Start the sSrver
+### 3. Start the Server
 ```bash 
 npm start
 ```
@@ -78,5 +78,4 @@ npm start
 | **DELETE**    | `/users/:username`                 | Delete user account          |
 | **POST**      | `/users/:username/movies/:movieID` | Add movie to favorites       |
 | **DELETE**    | `/users/:username/movies/:movieID` | Delete movie from favorites  |
-
 
